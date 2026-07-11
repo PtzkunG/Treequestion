@@ -307,6 +307,16 @@
         </div>
         <button id="chopBtn">✂️</button>
       </div>
+
+      <!-- ============ QUIZ MODAL (อยู่ใน game-wrap เพื่อให้แสดงผลตอนเข้าโหมดเต็มจอด้วย) ============ -->
+      <div id="quiz-modal" class="hidden">
+        <div class="quiz-card">
+          <div class="quiz-eyebrow">จุดตรวจก่อนตัดไม้ 🌳</div>
+          <div class="quiz-q" id="quiz-question"></div>
+          <div id="quiz-options"></div>
+          <div class="quiz-feedback" id="quiz-feedback"></div>
+        </div>
+      </div>
     </div>
     <p class="keyboard-hint">ควบคุม: ลูกศร / WASD เดิน • กด E หรือแตะ ✂️ เพื่อตัดต้นไม้ที่อยู่ใกล้</p>
   </section>
@@ -322,16 +332,6 @@
     </div>
   </section>
 
-</div>
-
-<!-- ============ QUIZ MODAL ============ -->
-<div id="quiz-modal" class="hidden">
-  <div class="quiz-card">
-    <div class="quiz-eyebrow">จุดตรวจก่อนตัดไม้ 🌳</div>
-    <div class="quiz-q" id="quiz-question"></div>
-    <div id="quiz-options"></div>
-    <div class="quiz-feedback" id="quiz-feedback"></div>
-  </div>
 </div>
 
 <script>
