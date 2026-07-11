@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>วิ่งข้ามสะพาน: มาราธอนแห่งปัญญา</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --forest:#2B6E4F;
+    --forest-dark:#1D4B36;
+    --gold:#F2C14E;
+    --gold-dark:#D9A62E;
+    --river:#4FA8C9;
+    --river-dark:#357C99;
+    --parchment:#FBF6E9;
+    --finish-red:#E85D4C;
+    --ink:#2E2A26;
+    --wood:#8A5A34;
+    --wood-dark:#6B4222;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;
+    background:linear-gradient(180deg,#1D4B36 0%,#2B6E4F 55%,#245c42 100%);
+    color:var(--ink);
+    font-family:'Sarabun',system-ui,sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.display{font-family:'Kanit',system-ui,sans-serif;}
+  .hidden{display:none !important;}
+  #app{
+    max-width:820px;
+    margin:0 auto;
+    padding:16px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+
+  /* ---------- Shared card / button styles ---------- */
+  .card{
+    background:var(--parchment);
+    border-radius:18px;
+    padding:22px 20px;
+    width:100%;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+    border:2px solid rgba(0,0,0,.06);
+  }
+  .btn{
+    font-family:'Kanit',system-ui,sans-serif;
+    font-weight:700;
+    font-size:16px;
+    border:none;
+    border-radius:999px;
+    padding:12px 22px;
+    cursor:pointer;
+    transition:transform .12s ease, filter .12s ease;
+    letter-spacing:.2px;
+  }
+  .btn:active{transform:scale(.96);}
+  .btn-primary{background:var(--gold);color:var(--ink);box-shadow:0 4px 0 var(--gold-dark);}
+  .btn-primary:hover{filter:brightness(1.05);}
+  .btn-outline{background:transparent;color:var(--parchment);border:2px solid var(--parchment);}
+  .btn-ghost{background:rgba(0,0,0,.06);color:var(--ink);}
+  .btn-danger{background:transparent;color:var(--finish-red);border:2px solid var(--finish-red);}
+  .btn-small{padding:8px 14px;font-size:13px;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;}
+
+  /* ---------- Ribbon banner (signature element) ---------- */
+  .ribbon-wrap{
+    position:relative;
+    width:100%;
+    height:64px;
+    margin:14px 0 20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .ribbon-half{
+    position:absolute;top:50%;
+    width:46%;
+    height:34px;
+    background:repeating-linear-gradient(-45deg,var(--finish-red) 0 18px,var(--gold) 18px 36px);
+    box-shadow:0 3px 0 rgba(0,0,0,.2);
+  }
+  .ribbon-half.left{left:0;transform:translateY(-50%) rotate(-3deg);border-radius:6px 2px 2px 6px;clip-path:polygon(0 0,100% 0,88% 100%,0 100%);}
+  .ribbon-half.right{right:0;transform:translateY(-50%) rotate(3deg);border-radius:2px 6px 6px 2px;clip-path:polygon(12% 0,100% 0,100% 100%,0 100%);}
+  .ribbon-tag{
+    position:relative;z-index:2;
+    background:var(--forest-dark);color:var(--parchment);
+    font-family:'Kanit',system-ui,sans-serif;font-weight:700;font-size:13px;
+    padding:6px 14px;border-radius:999px;border:2px solid var(--gold);
+  }
+
+  /* ---------- Start screen ---------- */
+  #screen-start .eyebrow{
+    color:var(--forest);font-weight:700;letter-spacing:2px;font-size:12px;text-transform:uppercase;
+  }
+  #screen-start h1{font-size:30px;margin:6px 0 4px;color:var(--forest-dark);}
+  #screen-start p{line-height:1.65;font-size:15px;margin:8px 0;}
+  #q-status{font-size:13px;color:var(--forest-dark);opacity:.8;}
+  .howto{
+    background:rgba(43,110,79,.08);
+    border-left:4px solid var(--forest);
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13.5px;
+    margin-top:14px;
+  }
+  .top-actions{width:100%;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .icon-btn{
+    background:rgba(0,0,0,.35);color:var(--parchment);border:none;border-radius:50%;
+    width:40px;height:40px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+
+  /* ---------- Game screen ---------- */
+  #screen-game{width:100%;}
+  #game-wrap{position:relative;width:100%;max-width:800px;margin:0 auto;}
+  #gameCanvas{
+    display:block;width:100%;height:auto;aspect-ratio:8/5;
+    background:var(--forest);
+    border-radius:14px;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+    touch-action:none;
+  }
+  .hud-bar{
+    position:absolute;top:10px;left:10px;right:10px;
+    display:flex;justify-content:space-between;align-items:flex-start;
+    pointer-events:none;
+  }
+  .bib{
+    font-family:'Kanit',system-ui,sans-serif;font-weight:700;font-size:14px;
+    background:var(--parchment);color:var(--ink);
+    padding:7px 13px;border-radius:10px;
+    border:2px dashed var(--wood-dark);
+    box-shadow:0 3px 0 rgba(0,0,0,.2);
+  }
+  #hud-prompt{
+    position:absolute;left:50%;bottom:96px;transform:translateX(-50%);
+    font-family:'Kanit',system-ui,sans-serif;font-weight:700;font-size:14px;
+    background:var(--finish-red);color:#fff;padding:8px 16px;border-radius:999px;
+    box-shadow:0 4px 0 rgba(0,0,0,.25);white-space:nowrap;
+  }
+  .top-right-controls{display:flex;gap:8px;pointer-events:all;}
+
+  /* ---------- Touch controls ---------- */
+  #controls{
+    position:absolute;left:0;right:0;bottom:14px;
+    display:flex;justify-content:space-between;align-items:flex-end;
+    padding:0 14px;pointer-events:none;
+  }
+  #dpad{
+    pointer-events:all;
+    display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px);gap:4px;
+  }
+  .dbtn{
+    background:rgba(251,246,233,.85);border:2px solid var(--wood-dark);border-radius:10px;
+    display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink);
+    user-select:none;
+  }
+  #chopBtn{
+    pointer-events:all;
+    width:78px;height:78px;border-radius:50%;
+    background:rgba(0,0,0,.35);border:3px solid rgba(255,255,255,.4);
+    color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;
+    transition:transform .1s ease, background .15s ease, border-color .15s ease;
+  }
+  #chopBtn.active{
+    background:var(--gold);border-color:var(--gold-dark);color:var(--ink);
+    transform:scale(1.08);
+    box-shadow:0 0 0 6px rgba(242,193,78,.3);
+  }
+  .keyboard-hint{color:rgba(251,246,233,.75);font-size:12.5px;text-align:center;margin-top:8px;}
+
+  /* ---------- Quiz modal ---------- */
+  #quiz-modal{
+    position:fixed;inset:0;background:rgba(29,75,54,.75);
+    display:flex;align-items:center;justify-content:center;padding:16px;z-index:50;
+  }
+  .quiz-card{
+    background:var(--parchment);border-radius:16px;max-width:420px;width:100%;
+    padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.4);border-top:8px solid var(--gold);
+    animation:pop .18s ease;
+  }
+  @keyframes pop{from{transform:scale(.9);opacity:0;}to{transform:scale(1);opacity:1;}}
+  .quiz-eyebrow{
+    font-family:'Kanit',system-ui,sans-serif;font-weight:700;font-size:12px;color:var(--forest);
+    text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;
+  }
+  .quiz-q{font-family:'Kanit',system-ui,sans-serif;font-weight:600;font-size:19px;margin:4px 0 16px;line-height:1.4;}
+  .quiz-opt{
+    display:block;width:100%;text-align:left;background:#fff;border:2px solid rgba(0,0,0,.1);
+    border-radius:10px;padding:12px 14px;margin-bottom:9px;font-size:15px;font-family:'Sarabun',sans-serif;
+    cursor:pointer;transition:background .12s,border-color .12s;
+  }
+  .quiz-opt:hover{border-color:var(--forest);}
+  .quiz-opt.correct{background:#DCEFE2;border-color:var(--forest);}
+  .quiz-opt.wrong{background:#FBE2DE;border-color:var(--finish-red);}
+  .quiz-feedback{font-family:'Kanit',system-ui,sans-serif;font-weight:700;font-size:14px;height:18px;margin-top:2px;}
+
+  /* ---------- Win screen ---------- */
+  #screen-win .card{text-align:center;}
+  #win-time{font-family:'Kanit',system-ui,sans-serif;font-size:44px;font-weight:800;color:var(--forest-dark);margin:6px 0;}
+
+  /* ---------- Editor ---------- */
+  .editor-note{
+    font-size:13px;background:rgba(232,93,76,.09);border-left:4px solid var(--finish-red);
+    padding:10px 12px;border-radius:8px;margin-bottom:16px;line-height:1.55;
+  }
+  .qedit-form{background:#fff;border-radius:12px;padding:16px;border:2px solid rgba(0,0,0,.08);margin-bottom:18px;}
+  .qedit-form label{display:block;font-size:12.5px;font-weight:600;color:var(--forest-dark);margin:10px 0 4px;}
+  .qedit-form input[type=text]{
+    width:100%;padding:9px 11px;border-radius:8px;border:1.5px solid rgba(0,0,0,.15);font-size:14.5px;font-family:'Sarabun',sans-serif;
+  }
+  .opt-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .opt-row input[type=text]{flex:1;}
+  .qlist-item{
+    background:#fff;border-radius:10px;padding:12px 14px;margin-bottom:10px;border:1.5px solid rgba(0,0,0,.08);
+  }
+  .qlist-item .qtxt{font-weight:600;margin-bottom:6px;}
+  .qlist-item .opt{font-size:13.5px;padding:2px 0;color:#555;}
+  .qlist-item .opt.iscorrect{color:var(--forest-dark);font-weight:700;}
+  .tree-count{font-size:12.5px;color:var(--forest-dark);opacity:.75;margin-top:2px;}
+
+  /* ========== MOBILE RESPONSIVE FIXES ========== */
+  @media (max-width:768px){
+    #screen-start h1{font-size:24px;}
+    .bib{font-size:12px;padding:6px 10px;}
+    
+    /* Move controls below canvas on small screens to prevent overlap */
+    #controls {
+      position: relative;
+      bottom: auto;
+      margin-top: 15px;
+      padding: 0;
+      justify-content: space-evenly;
+      align-items: center;
+    }
+    
+    #gameCanvas {
+      /* Keep standard shape but scale it better */
+      box-shadow: 0 4px 12px rgba(0,0,0,.25);
+    }
+    
+    #hud-prompt {
+      bottom: 20px; /* Adjust prompt position since controls moved out */
+    }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ START SCREEN ============ -->
+  <section id="screen-start" class="card">
+    <div class="top-actions">
+      <span class="eyebrow">🏃 Marathon Day — Bib #026</span>
+      <button class="icon-btn" id="btn-mute-start" title="เปิด/ปิดเสียง">🔊</button>
+    </div>
+    <h1>วิ่งข้ามสะพาน: มาราธอนแห่งปัญญา</h1>
+    <p>
+      วันนี้คือวันแข่งมาราธอนที่ทุกคนรอคอย คุณวิ่งนำหน้าใกล้ถึง<strong>เส้นชัย</strong>แล้ว
+      แต่จู่ๆ สะพานข้ามลำธารข้างหน้าก็ <strong>ขาดสะบั้นลงมา</strong>!
+      ทางเดียวที่จะไปถึงริบบิ้นเส้นชัยได้ คือต้อง <strong>ตัดไม้จากต้นไม้รอบสนาม</strong> มาปูเป็นสะพานใหม่
+      แต่ก่อนตัดไม้แต่ละต้นได้ คุณต้อง <strong>ตอบคำถามที่ด่านตรวจให้ถูกต้องก่อน</strong>
+    </p>
+
+    <div class="ribbon-wrap">
+      <div class="ribbon-half left"></div>
+      <div class="ribbon-half right"></div>
+      <div class="ribbon-tag">สะพานขาด • ต้องสร้างใหม่</div>
+    </div>
+
+    <p id="q-status">กำลังโหลดชุดคำถาม…</p>
+
+    <div class="row" style="margin-top:10px;">
+      <button class="btn btn-primary" id="btn-start">▶ เริ่มวิ่ง</button>
+      <button class="btn btn-ghost" id="btn-open-editor">⚙ ตั้งค่าคำถาม / ต้นไม้</button>
+    </div>
+
+    <div class="howto">
+      <strong>วิธีเล่น:</strong> ใช้ลูกศร/WASD หรือปุ่มบนหน้าจอเพื่อเดิน เข้าใกล้ต้นไม้แล้วกด
+      <strong>E</strong> หรือปุ่ม ✂️ เพื่อตอบคำถาม — ตอบถูกจะได้ไม้กระดานไปปูสะพาน ตอบครบทุกต้นแล้วค่อยวิ่งข้ามไปยังธงเส้นชัย
+    </div>
+  </section>
+
+  <!-- ============ EDITOR SCREEN ============ -->
+  <section id="screen-editor" class="card hidden">
+    <div class="top-actions">
+      <h2 style="margin:0;color:var(--forest-dark);">⚙ ตั้งค่าคำถามประจำด่าน</h2>
+      <button class="icon-btn" id="btn-close-editor" title="กลับ">✕</button>
+    </div>
+    <div class="editor-note">
+      💡 จำนวน<strong>ต้นไม้ในสนาม = จำนวนคำถาม</strong> ที่คุณตั้งไว้ — เพิ่มคำถามได้อิสระเพื่อเพิ่มความยาก
+    </div>
+
+    <div class="qedit-form">
+      <div class="quiz-eyebrow" id="form-mode-label">เพิ่มคำถามใหม่</div>
+      <label for="in-question">คำถาม</label>
+      <input type="text" id="in-question" placeholder="เช่น เมืองหลวงของไทยคือเมืองใด?">
+
+      <label>ตัวเลือกคำตอบ (ใส่อย่างน้อย 2 ข้อ แล้วเลือกข้อที่ถูก)</label>
+      <div class="opt-row"><input type="radio" name="correctOpt" value="0"><input type="text" class="opt-input" placeholder="ตัวเลือก A"></div>
+      <div class="opt-row"><input type="radio" name="correctOpt" value="1"><input type="text" class="opt-input" placeholder="ตัวเลือก B"></div>
+      <div class="opt-row"><input type="radio" name="correctOpt" value="2"><input type="text" class="opt-input" placeholder="ตัวเลือก C (ไม่บังคับ)"></div>
+      <div class="opt-row"><input type="radio" name="correctOpt" value="3"><input type="text" class="opt-input" placeholder="ตัวเลือก D (ไม่บังคับ)"></div>
+
+      <div class="row" style="margin-top:12px;">
+        <button class="btn btn-primary btn-small" id="btn-save-q">＋ เพิ่มคำถามนี้</button>
+        <button class="btn btn-ghost btn-small hidden" id="btn-cancel-edit">ยกเลิกการแก้ไข</button>
+      </div>
+    </div>
+
+    <div class="tree-count" id="tree-count-label">ตอนนี้มี 0 คำถาม / ต้นไม้</div>
+    <div id="qlist" style="margin-top:10px;"></div>
+
+    <div class="row" style="margin-top:14px;">
+      <button class="btn btn-danger btn-small" id="btn-reset-default">↺ รีเซ็ตเป็นชุดคำถามเริ่มต้น</button>
+    </div>
+  </section>
+
+  <!-- ============ GAME SCREEN ============ -->
+  <section id="screen-game" class="hidden">
+    <div id="game-wrap">
+      <canvas id="gameCanvas" width="800" height="500"></canvas>
+      <div class="hud-bar">
+        <span class="bib">⏱ <span id="hud-timer">00:00</span></span>
+        <div class="top-right-controls">
+          <span class="bib">🪵 <span id="hud-progress">0/0</span></span>
+          <button class="icon-btn" id="btn-mute-game">🔊</button>
+        </div>
+      </div>
+      <div id="hud-prompt" class="hidden">กด <strong>E</strong> หรือ <strong>ปุ่มตัดไม้</strong></div>
+      <div id="controls">
+        <div id="dpad">
+          <div></div><button class="dbtn" id="btn-up">▲</button><div></div>
+          <button class="dbtn" id="btn-left">◀</button><div></div><button class="dbtn" id="btn-right">▶</button>
+          <div></div><button class="dbtn" id="btn-down">▼</button><div></div>
+        </div>
+        <button id="chopBtn">✂️</button>
+      </div>
+    </div>
+    <p class="keyboard-hint">ควบคุม: ลูกศร / WASD เดิน • กด E หรือแตะ ✂️ เพื่อตัดต้นไม้ที่อยู่ใกล้</p>
+  </section>
+
+  <!-- ============ WIN SCREEN ============ -->
+  <section id="screen-win" class="card hidden">
+    <div class="ribbon-wrap"><div class="ribbon-tag" style="position:static;">🏁 เข้าเส้นชัยแล้ว!</div></div>
+    <h2 style="color:var(--forest-dark);">สะพานสร้างเสร็จ วิ่งข้ามมาถึงเส้นชัยสำเร็จ!</h2>
+    <div id="win-time">00:00</div>
+    <p id="win-mistakes" style="opacity:.75;"></p>
+    <div class="row" style="justify-content:center;">
+      <button class="btn btn-primary" id="btn-replay">🔁 วิ่งอีกครั้ง</button>
+      <button class="btn btn-ghost" id="btn-win-editor">⚙ แก้ไขคำถาม</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============ QUIZ MODAL ============ -->
+<div id="quiz-modal" class="hidden">
+  <div class="quiz-card">
+    <div class="quiz-eyebrow">จุดตรวจก่อนตัดไม้ 🌳</div>
+    <div class="quiz-q" id="quiz-question"></div>
+    <div id="quiz-options"></div>
+    <div class="quiz-feedback" id="quiz-feedback"></div>
+  </div>
+</div>
+
+<!-- ============ FIREBASE SCRIPTS ============ -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     DEFAULT QUESTIONS
+  ============================================================ */
+  var DEFAULT_QUESTIONS = [
+    {q:"เมืองหลวงของประเทศไทยคือเมืองใด?", options:["กรุงเทพมหานคร","เชียงใหม่","ภูเก็ต","ขอนแก่น"], correct:0},
+    {q:"ดาวเคราะห์ดวงใดอยู่ใกล้ดวงอาทิตย์ที่สุด?", options:["ดาวศุกร์","ดาวพุธ","โลก","ดาวอังคาร"], correct:1},
+    {q:"1 กิโลเมตร เท่ากับกี่เมตร?", options:["10","100","1000","10000"], correct:2},
+    {q:"ร่างกายมนุษย์ที่โตเต็มวัยมีกระดูกประมาณกี่ชิ้น?", options:["106","206","306","406"], correct:1},
+    {q:"7 คูณ 8 ได้เท่าไร?", options:["54","56","58","64"], correct:1},
+    {q:"สัตว์ชนิดใดได้รับฉายาว่า 'ราชาแห่งป่า'?", options:["เสือ","สิงโต","ช้าง","หมี"], correct:1}
+  ];
+
+  var questions = [];
+
+  /* ============================================================
+     AUDIO
+  ============================================================ */
+  var muted = false;
+  var actx = null;
+  function ensureAudio(){
+    if(!actx){
+      try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ actx=null; }
+    }
+    if(actx && actx.state === "suspended"){ actx.resume(); }
+  }
+  function beep(freq,dur,type,vol,delay){
+    if(muted || !actx) return;
+    setTimeout(function(){
+      try{
+        var o = actx.createOscillator(), g = actx.createGain();
+        o.type = type||"sine"; o.frequency.value = freq;
+        g.gain.value = vol!==undefined?vol:0.15;
+        o.connect(g); g.connect(actx.destination);
+        o.start();
+        g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime+dur);
+        o.stop(actx.currentTime+dur);
+      }catch(e){}
+    }, delay||0);
+  }
+  function sfxChop(){ beep(520,0.12,"triangle",0.18,0); beep(780,0.14,"triangle",0.16,90); }
+  function sfxWrong(){ beep(160,0.28,"sawtooth",0.15,0); }
+  function sfxWin(){ [523,659,784,1046].forEach(function(f,i){ beep(f,0.22,"triangle",0.18,i*110); }); }
+  function setMuted(m){
+    muted = m;
+    var icon = muted ? "🔇" : "🔊";
+    document.getElementById("btn-mute-start").textContent = icon;
+    document.getElementById("btn-mute-game").textContent = icon;
+  }
+
+  /* ============================================================
+     FIREBASE STORAGE & ADMIN
+  ============================================================ */
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  // [สำคัญมาก] คุณต้องนำ Firebase Config ของคุณมาใส่ตรงนี้ 
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  var firebaseConfig = {
+    apiKey: "AIzaSyXXX...", // เปลี่ยนเป็นของจริง
+    authDomain: "your-project.firebaseapp.com", // เปลี่ยนเป็นของจริง
+    databaseURL: "https://your-project-default-rtdb.asia-southeast1.firebasedatabase.app", // เปลี่ยนเป็นของจริง
+    projectId: "your-project", // เปลี่ยนเป็นของจริง
+    storageBucket: "your-project.appspot.com", // เปลี่ยนเป็นของจริง
+    messagingSenderId: "123456789", // เปลี่ยนเป็นของจริง
+    appId: "1:123456789:web:abcdef" // เปลี่ยนเป็นของจริง
+  };
+  
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  var database = firebase.database();
+  var DB_REF = "bridge_questions";
+
+  async function loadQuestions(){
+    return new Promise((resolve) => {
+      database.ref(DB_REF).once('value').then((snapshot) => {
+        if (snapshot.exists()) {
+          resolve(snapshot.val());
+        } else {
+          resolve(DEFAULT_QUESTIONS.slice()); // ถ้ายังไม่มีข้อมูลให้ใช้ค่าเริ่มต้น
+        }
+      }).catch((e) => {
+        console.error(e);
+        resolve(DEFAULT_QUESTIONS.slice());
+      });
+    });
+  }
+
+  async function saveQuestions(qs){
+    try {
+      await database.ref(DB_REF).set(qs);
+      return true;
+    } catch(e) {
+      console.error("save failed", e);
+      alert("บันทึกคำถามลงฐานข้อมูลไม่สำเร็จ กรุณาตรวจสอบ Firebase Rules");
+      return false;
+    }
+  }
+
+  /* ============================================================
+     SCREEN MANAGEMENT
+  ============================================================ */
+  var screens = {
+    start: document.getElementById("screen-start"),
+    editor: document.getElementById("screen-editor"),
+    game: document.getElementById("screen-game"),
+    win: document.getElementById("screen-win")
+  };
+  function showScreen(name){
+    Object.keys(screens).forEach(function(k){
+      screens[k].classList.toggle("hidden", k!==name);
+    });
+  }
+
+  /* ============================================================
+     LEVEL BUILD (deterministic layout from question count)
+  ============================================================ */
+  var VIEW_W = 800, VIEW_H = 500;
+  var level = null;
+
+  function seededRand(i){
+    var s = Math.sin(i*999.7)*10000;
+    return s - Math.floor(s);
+  }
+
+  function buildLevel(qs){
+    var n = qs.length;
+    var cols = Math.min(4, Math.max(1, Math.ceil(Math.sqrt(n))));
+    var rows = Math.ceil(n/cols);
+    var marginX = 70;
+    var cellW = (VIEW_W - marginX*2)/cols;
+    var cellH = 150;
+    var treesAreaTop = 150;
+    var treesAreaHeight = rows*cellH;
+    var grassEndY = treesAreaTop + treesAreaHeight + 90;
+    var riverTop = grassEndY;
+    var riverH = 110;
+    var riverBottom = riverTop + riverH;
+    var finishTop = riverBottom;
+    var finishH = 280;
+    var finishLineY = finishTop + finishH - 70;
+    var worldH = finishTop + finishH;
+
+    var bridgeW = 180;
+    var bridgeXMin = (VIEW_W - bridgeW)/2;
+    var bridgeXMax = bridgeXMin + bridgeW;
+
+    var trees = [];
+    for(var i=0;i<n;i++){
+      var col = i%cols, row = Math.floor(i/cols);
+      var baseX = marginX + col*cellW + cellW/2;
+      var baseY = treesAreaTop + row*cellH + cellH/2;
+      var offX = (seededRand(i)-0.5)*cellW*0.5;
+      var offY = (seededRand(i+51)-0.5)*cellH*0.4;
+      trees.push({
+        id:i, x:baseX+offX, y:baseY+offY, cut:false, qIndex:i, sway:seededRand(i+7)*6.28
+      });
+    }
+
+    // decorative grass tufts
+    var decoTop = [];
+    for(var d=0; d<Math.max(18, n*3); d++){
+      decoTop.push({
+        x: 20 + seededRand(d*3+1)*(VIEW_W-40),
+        y: 20 + seededRand(d*3+2)*(grassEndY-40),
+        r: 3+seededRand(d*3+3)*3
+      });
+    }
+    var decoBottom = [];
+    for(var e=0; e<16; e++){
+      decoBottom.push({
+        x: 20 + seededRand(e*5+1)*(VIEW_W-40),
+        y: finishTop+20 + seededRand(e*5+2)*(finishH-40),
+        r: 3+seededRand(e*5+3)*3
+      });
+    }
+
+    return {
+      n:n, cols:cols, rows:rows,
+      grassEndY:grassEndY, riverTop:riverTop, riverBottom:riverBottom,
+      finishTop:finishTop, finishH:finishH, finishLineY:finishLineY, worldH:worldH,
+      bridgeXMin:bridgeXMin, bridgeXMax:bridgeXMax, bridgeW:bridgeW,
+      trees:trees, decoTop:decoTop, decoBottom:decoBottom
+    };
+  }
+
+  /* ============================================================
+     GAME STATE
+  ============================================================ */
+  var canvas = document.getElementById("gameCanvas");
+  var ctx = canvas.getContext("2d");
+
+  var player, camY, particles, keys, nearTreeId, cutCount, mistakes, startTime, elapsed, playing, waveT;
+
+  function resetPlayer(){
+    player = { x: VIEW_W/2, y: level.grassEndY-40, r:14, facing:"down", moving:false, animT:0 };
+    camY = 0;
+    particles = [];
+    nearTreeId = null;
+    cutCount = 0;
+    mistakes = 0;
+    startTime = performance.now();
+    elapsed = 0;
+    waveT = 0;
+    level.trees.forEach(function(t){ t.cut=false; });
+  }
+
+  function startGame(){
+    ensureAudio();
+    level = buildLevel(questions);
+    resetPlayer();
+    playing = true;
+    showScreen("game");
+    updateHudProgress();
+    requestAnimationFrame(loop);
+  }
+
+  /* ---------- Input ---------- */
+  keys = {};
+  window.addEventListener("keydown", function(e){
+    if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Space"].indexOf(e.code)!==-1 && !screens.game.classList.contains("hidden")){
+      e.preventDefault();
+    }
+    keys[e.code] = true;
+    if((e.code==="KeyE") && !document.getElementById("quiz-modal").classList.contains("hidden")===false){
+      tryChop();
+    }
+  });
+  window.addEventListener("keyup", function(e){ keys[e.code]=false; });
+
+  function bindHold(el, onDown, onUp){
+    el.addEventListener("touchstart", function(ev){ ev.preventDefault(); onDown(); }, {passive:false});
+    el.addEventListener("touchend", function(ev){ ev.preventDefault(); onUp(); }, {passive:false});
+    el.addEventListener("mousedown", function(ev){ ev.preventDefault(); onDown(); });
+    el.addEventListener("mouseup", function(ev){ onUp(); });
+    el.addEventListener("mouseleave", function(){ onUp(); });
+  }
+  var touchDir = {up:false,down:false,left:false,right:false};
+  bindHold(document.getElementById("btn-up"), function(){touchDir.up=true;}, function(){touchDir.up=false;});
+  bindHold(document.getElementById("btn-down"), function(){touchDir.down=true;}, function(){touchDir.down=false;});
+  bindHold(document.getElementById("btn-left"), function(){touchDir.left=true;}, function(){touchDir.left=false;});
+  bindHold(document.getElementById("btn-right"), function(){touchDir.right=true;}, function(){touchDir.right=false;});
+  document.getElementById("chopBtn").addEventListener("click", function(){ tryChop(); });
+
+  function tryChop(){
+    if(nearTreeId===null) return;
+    var tree = level.trees[nearTreeId];
+    if(!tree || tree.cut) return;
+    openQuiz(tree);
+  }
+
+  /* ---------- Update ---------- */
+  var SPEED = 190;
+  function update(dt){
+    var dx=0, dy=0;
+    if(keys["ArrowUp"]||keys["KeyW"]||touchDir.up) dy-=1;
+    if(keys["ArrowDown"]||keys["KeyS"]||touchDir.down) dy+=1;
+    if(keys["ArrowLeft"]||keys["KeyA"]||touchDir.left) dx-=1;
+    if(keys["ArrowRight"]||keys["KeyD"]||touchDir.right) dx+=1;
+
+    var moving = (dx!==0||dy!==0);
+    if(moving){
+      var len = Math.sqrt(dx*dx+dy*dy);
+      dx/=len; dy/=len;
+      if(dx>0) player.facing="right"; else if(dx<0) player.facing="left";
+      else if(dy>0) player.facing="down"; else if(dy<0) player.facing="up";
+      player.animT += dt;
+    }
+    player.moving = moving;
+
+    var newX = player.x + dx*SPEED*dt;
+    var newY = player.y + dy*SPEED*dt;
+
+    // bounds
+    newX = Math.max(24, Math.min(VIEW_W-24, newX));
+    newY = Math.max(24, Math.min(level.worldH-24, newY));
+
+    // tree collisions (axis separated)
+    var tx = player.x, ty = player.y;
+    if(!collidesTree(newX, ty)) tx = newX;
+    if(!collidesTree(tx, newY) && !blockedByRiver(tx,newY)) ty = newY;
+    player.x = tx; player.y = ty;
+
+    // camera
+    var maxCam = Math.max(0, level.worldH - VIEW_H);
+    camY = Math.max(0, Math.min(maxCam, player.y - VIEW_H/2));
+
+    // nearest tree
+    var best=null, bestD=54;
+    level.trees.forEach(function(t){
+      if(t.cut) return;
+      var d = Math.hypot(t.x-player.x, t.y-player.y);
+      if(d<bestD){ bestD=d; best=t.id; }
+    });
+    nearTreeId = best;
+    document.getElementById("hud-prompt").classList.toggle("hidden", nearTreeId===null);
+    document.getElementById("chopBtn").classList.toggle("active", nearTreeId!==null);
+
+    // particles
+    particles.forEach(function(p){
+      p.vy += 480*dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.life-=dt;
+    });
+    particles = particles.filter(function(p){ return p.life>0; });
+
+    waveT += dt;
+
+    // win check
+    if(player.y >= level.finishLineY-8 && player.y > level.riverBottom){
+      triggerWin();
+    }
+
+    elapsed = (performance.now()-startTime)/1000;
+    document.getElementById("hud-timer").textContent = fmtTime(elapsed);
+  }
+
+  function collidesTree(x,y){
+    for(var i=0;i<level.trees.length;i++){
+      var t = level.trees[i];
+      if(t.cut) continue;
+      if(Math.hypot(t.x-x, t.y-y) < 24) return true;
+    }
+    return false;
+  }
+  function blockedByRiver(x,y){
+    if(y > level.riverTop-14 && y < level.riverBottom+14){
+      var bridgeComplete = cutCount >= level.n;
+      var withinBridge = x > level.bridgeXMin+10 && x < level.bridgeXMax-10;
+      return !(bridgeComplete && withinBridge);
+    }
+    return false;
+  }
+
+  function fmtTime(s){
+    var m = Math.floor(s/60), sec = Math.floor(s%60);
+    return (m<10?"0":"")+m+":"+(sec<10?"0":"")+sec;
+  }
+
+  /* ---------- Quiz ---------- */
+  var quizModal = document.getElementById("quiz-modal");
+  var quizQ = document.getElementById("quiz-question");
+  var quizOpts = document.getElementById("quiz-options");
+  var quizFeedback = document.getElementById("quiz-feedback");
+  var activeTree = null;
+  var quizLocked = false;
+
+  function openQuiz(tree){
+    activeTree = tree;
+    quizLocked = false;
+    var q = questions[tree.qIndex];
+    quizQ.textContent = q.q;
+    quizOpts.innerHTML = "";
+    quizFeedback.textContent = "";
+    q.options.forEach(function(optText, idx){
+      if(!optText) return;
+      var b = document.createElement("button");
+      b.className = "quiz-opt";
+      b.textContent = optText;
+      b.addEventListener("click", function(){ answerQuiz(idx, b); });
+      quizOpts.appendChild(b);
+    });
+    quizModal.classList.remove("hidden");
+  }
+  function closeQuiz(){
+    quizModal.classList.add("hidden");
+    activeTree = null;
+  }
+  function answerQuiz(idx, btnEl){
+    if(quizLocked) return;
+    var q = questions[activeTree.qIndex];
+    if(idx === q.correct){
+      quizLocked = true;
+      btnEl.classList.add("correct");
+      quizFeedback.style.color = "var(--forest-dark)";
+      quizFeedback.textContent = "✓ ถูกต้อง! ได้ไม้กระดานมาปูสะพาน";
+      sfxChop();
+      cutTree(activeTree);
+      setTimeout(closeQuiz, 750);
+    }else{
+      btnEl.classList.add("wrong");
+      quizFeedback.style.color = "var(--finish-red)";
+      quizFeedback.textContent = "✗ ยังไม่ถูก ลองข้อถัดไปดูนะ";
+      mistakes++;
+      sfxWrong();
+    }
+  }
+  function cutTree(tree){
+    tree.cut = true;
+    cutCount++;
+    updateHudProgress();
+    for(var i=0;i<12;i++){
+      particles.push({
+        x:tree.x, y:tree.y, vx:(Math.random()-0.5)*160, vy:-120-Math.random()*80,
+        life:0.5+Math.random()*0.3, color: Math.random()>0.5 ? "#8A5A34" : "#5E8B54"
+      });
+    }
+  }
+  function updateHudProgress(){
+    document.getElementById("hud-progress").textContent = cutCount+"/"+level.n;
+  }
+
+  /* ---------- Win ---------- */
+  function triggerWin(){
+    if(!playing) return;
+    playing = false;
+    sfxWin();
+    document.getElementById("win-time").textContent = fmtTime(elapsed);
+    document.getElementById("win-mistakes").textContent = mistakes>0
+      ? "ตอบผิดไป "+mistakes+" ครั้งระหว่างทาง — สู้ต่อไปนักวิ่ง!"
+      : "ตอบถูกทุกข้อแบบไม่มีพลาดเลย ยอดเยี่ยมมาก!";
+    showScreen("win");
+  }
+
+  /* ============================================================
+     RENDER
+  ============================================================ */
+  function render(){
+    ctx.clearRect(0,0,VIEW_W,VIEW_H);
+    ctx.save();
+    ctx.translate(0,-camY);
+
+    // grass field (start area)
+    var gGrass = ctx.createLinearGradient(0,0,0,level.grassEndY);
+    gGrass.addColorStop(0,"#3C8763"); gGrass.addColorStop(1,"#2B6E4F");
+    ctx.fillStyle = gGrass;
+    ctx.fillRect(0,0,VIEW_W,level.grassEndY);
+    ctx.fillStyle = "rgba(255,255,255,0.08)";
+    level.decoTop.forEach(function(d){ ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,7); ctx.fill(); });
+
+    // trees
+    level.trees.forEach(function(t){ drawTree(t); });
+
+    // river + bridge
+    drawRiverAndBridge();
+
+    // finish field
+    var gFin = ctx.createLinearGradient(0,level.finishTop,0,level.worldH);
+    gFin.addColorStop(0,"#3C8763"); gFin.addColorStop(1,"#256149");
+    ctx.fillStyle = gFin;
+    ctx.fillRect(0,level.finishTop,VIEW_W,level.finishH);
+    ctx.fillStyle = "rgba(255,255,255,0.08)";
+    level.decoBottom.forEach(function(d){ ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,7); ctx.fill(); });
+
+    drawFinishLine();
+
+    // particles
+    particles.forEach(function(p){
+      ctx.globalAlpha = Math.max(0,p.life/0.6);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(p.x-3,p.y-3,6,6);
+      ctx.globalAlpha = 1;
+    });
+
+    drawPlayer();
+
+    ctx.restore();
+  }
+
+  function drawTree(t){
+    if(t.cut){
+      ctx.fillStyle = "#7A5636";
+      ctx.beginPath(); ctx.ellipse(t.x, t.y+8, 14, 7, 0, 0, 7); ctx.fill();
+      ctx.fillStyle = "#9C744C";
+      ctx.beginPath(); ctx.ellipse(t.x, t.y+6, 8, 4, 0, 0, 7); ctx.fill();
+      return;
+    }
+    var sway = Math.sin(waveT*1.2 + t.sway)*2;
+    // trunk
+    ctx.fillStyle = "#6B4222";
+    ctx.fillRect(t.x-6, t.y-6, 12, 30);
+    // foliage
+    ctx.fillStyle = "#28633F";
+    ctx.beginPath();
+    ctx.moveTo(t.x+sway, t.y-58);
+    ctx.lineTo(t.x-30+sway, t.y-6);
+    ctx.lineTo(t.x+30+sway, t.y-6);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "#37804F";
+    ctx.beginPath();
+    ctx.moveTo(t.x+sway, t.y-40);
+    ctx.lineTo(t.x-24+sway, t.y+2);
+    ctx.lineTo(t.x+24+sway, t.y+2);
+    ctx.closePath(); ctx.fill();
+    if(t.id===nearTreeId){
+      ctx.strokeStyle = "rgba(242,193,78,0.9)";
+      ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.ellipse(t.x, t.y+14, 26, 10, 0, 0, 7); ctx.stroke();
+    }
+  }
+
+  function drawRiverAndBridge(){
+    var top = level.riverTop, bot = level.riverBottom;
+    var gRiver = ctx.createLinearGradient(0,top,0,bot);
+    gRiver.addColorStop(0,"#4FA8C9"); gRiver.addColorStop(1,"#2E7D9C");
+    ctx.fillStyle = gRiver;
+    ctx.fillRect(0,top,VIEW_W,bot-top);
+    // waves
+    ctx.strokeStyle = "rgba(255,255,255,0.35)";
+    ctx.lineWidth = 2;
+    for(var w=0; w<3; w++){
+      ctx.beginPath();
+      for(var x=0;x<=VIEW_W;x+=16){
+        var y = top+22+w*26 + Math.sin(x*0.05+waveT*2+w)*4;
+        if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+      }
+      ctx.stroke();
+    }
+
+    // broken plank remnants hanging off both banks (flavor)
+    drawBrokenPlank(level.bridgeXMin-26, top-4, -18);
+    drawBrokenPlank(level.bridgeXMax+26, top-4, 18);
+
+    // planks
+    var total = level.n;
+    var plankW = level.bridgeW/total;
+    for(var i=0;i<total;i++){
+      var t = level.trees[i];
+      var px = level.bridgeXMin + i*plankW;
+      if(t.cut){
+        ctx.fillStyle = "#8A5A34";
+        ctx.fillRect(px+2, top-6, plankW-4, (bot-top)+12);
+        ctx.strokeStyle = "#6B4222";
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(px+2, top-6, plankW-4, (bot-top)+12);
+        ctx.fillStyle = "rgba(0,0,0,0.15)";
+        ctx.fillRect(px+2, top+18, plankW-4, 2);
+      } else {
+        ctx.strokeStyle = "rgba(255,255,255,0.35)";
+        ctx.setLineDash([4,4]);
+        ctx.strokeRect(px+4, top+ (bot-top)/2-10, plankW-8, 20);
+        ctx.setLineDash([]);
+      }
+    }
+
+    // finish ribbon overlay once bridge complete
+    if(cutCount >= total){
+      ctx.save();
+      ctx.globalAlpha = 0.85;
+      var stripeH = 14;
+      ctx.fillStyle = "#E85D4C";
+      for(var s=0; s*stripeH < (bot-top); s++){
+        ctx.fillStyle = s%2===0 ? "#E85D4C" : "#F2C14E";
+        ctx.fillRect(level.bridgeXMin, top+s*stripeH, level.bridgeW, stripeH);
+      }
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
+  }
+  function drawBrokenPlank(x,y,angle){
+    ctx.save();
+    ctx.translate(x,y);
+    ctx.rotate(angle*Math.PI/180);
+    ctx.fillStyle = "#7A5636";
+    ctx.fillRect(-30,-6,60,12);
+    ctx.strokeStyle = "#5A3E24";
+    ctx.strokeRect(-30,-6,60,12);
+    ctx.restore();
+  }
+
+  function drawFinishLine(){
+    var y = level.finishLineY;
+    var stripe = 20;
+    for(var x=0;x<VIEW_W;x+=stripe){
+      ctx.fillStyle = ((x/stripe)%2===0) ? "#2E2A26" : "#FBF6E9";
+      ctx.fillRect(x,y-6,stripe,12);
+    }
+    // flag pole
+    ctx.fillStyle = "#6B4222";
+    ctx.fillRect(VIEW_W/2-3, y-70, 6, 70);
+    ctx.fillStyle = "#E85D4C";
+    ctx.beginPath();
+    ctx.moveTo(VIEW_W/2+3, y-70);
+    ctx.lineTo(VIEW_W/2+34, y-60);
+    ctx.lineTo(VIEW_W/2+3, y-50);
+    ctx.closePath(); ctx.fill();
+  }
+
+  function drawPlayer(){
+    var p = player;
+    var bob = p.moving ? Math.sin(p.animT*10)*3 : 0;
+    ctx.save();
+    ctx.translate(p.x, p.y+bob);
+    // shadow
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
+    ctx.beginPath(); ctx.ellipse(0,16,13,5,0,0,7); ctx.fill();
+    // legs
+    var legOff = p.moving ? Math.sin(p.animT*10)*6 : 0;
+    ctx.fillStyle = "#2E2A26";
+    ctx.fillRect(-8, 6+legOff*0.2, 6, 12);
+    ctx.fillRect(2, 6-legOff*0.2, 6, 12);
+    // body (bib vest)
+    ctx.fillStyle = "#F2C14E";
+    ctx.fillRect(-11,-14,22,22);
+    ctx.fillStyle = "#E85D4C";
+    ctx.font = "bold 10px Kanit, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("26", 0, 2);
+    // head
+    ctx.fillStyle = "#F4C89A";
+    ctx.beginPath(); ctx.arc(0,-22,10,0,7); ctx.fill();
+    // cap
+    ctx.fillStyle = "#2B6E4F";
+    ctx.beginPath(); ctx.arc(0,-26,10,Math.PI,0); ctx.fill();
+    var dirX = p.facing==="left" ? -1 : (p.facing==="right" ? 1 : 0);
+    ctx.fillRect(dirX*8-2, -28, 10*Math.sign(dirX||1), 4);
+    ctx.restore();
+  }
+
+  /* ---------- Loop ---------- */
+  var lastT = null;
+  function loop(ts){
+    if(lastT===null) lastT = ts;
+    var dt = Math.min(0.05,(ts-lastT)/1000);
+    lastT = ts;
+    if(playing) update(dt);
+    render();
+    if(!screens.game.classList.contains("hidden")) requestAnimationFrame(loop);
+  }
+
+  /* ============================================================
+     EDITOR UI
+  ============================================================ */
+  var editIndex = null; // null = adding new
+  var qlistEl = document.getElementById("qlist");
+  var inQuestion = document.getElementById("in-question");
+  var optInputs = Array.prototype.slice.call(document.querySelectorAll(".opt-input"));
+  var radios = Array.prototype.slice.call(document.querySelectorAll('input[name="correctOpt"]'));
+
+  function renderQList(){
+    document.getElementById("tree-count-label").textContent =
+      "ตอนนี้มี " + questions.length + " คำถาม / ต้นไม้ ในสนาม";
+    qlistEl.innerHTML = "";
+    questions.forEach(function(q, idx){
+      var div = document.createElement("div");
+      div.className = "qlist-item";
+      var optsHtml = q.options.map(function(o,i){
+        if(!o) return "";
+        return '<div class="opt'+(i===q.correct?' iscorrect':'')+'">'+(i===q.correct?'✓ ':'• ')+escapeHtml(o)+'</div>';
+      }).join("");
+      div.innerHTML =
+        '<div class="qtxt">'+(idx+1)+'. '+escapeHtml(q.q)+'</div>'+optsHtml+
+        '<div class="row" style="margin-top:8px;">'+
+        '<button class="btn btn-ghost btn-small" data-act="edit" data-idx="'+idx+'">แก้ไข</button>'+
+        '<button class="btn btn-danger btn-small" data-act="del" data-idx="'+idx+'">ลบ</button>'+
+        '</div>';
+      qlistEl.appendChild(div);
+    });
+    qlistEl.querySelectorAll('[data-act="edit"]').forEach(function(btn){
+      btn.addEventListener("click", function(){ loadIntoForm(parseInt(btn.dataset.idx,10)); });
+    });
+    qlistEl.querySelectorAll('[data-act="del"]').forEach(function(btn){
+      btn.addEventListener("click", function(){ deleteQuestion(parseInt(btn.dataset.idx,10)); });
+    });
+  }
+  function escapeHtml(s){
+    return s.replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  function resetForm(){
+    editIndex = null;
+    document.getElementById("form-mode-label").textContent = "เพิ่มคำถามใหม่";
+    document.getElementById("btn-save-q").textContent = "＋ เพิ่มคำถามนี้";
+    document.getElementById("btn-cancel-edit").classList.add("hidden");
+    inQuestion.value = "";
+    optInputs.forEach(function(o){ o.value=""; });
+    radios.forEach(function(r){ r.checked=false; });
+  }
+  function loadIntoForm(idx){
+    editIndex = idx;
+    var q = questions[idx];
+    document.getElementById("form-mode-label").textContent = "แก้ไขคำถามที่ "+(idx+1);
+    document.getElementById("btn-save-q").textContent = "💾 บันทึกการแก้ไข";
+    document.getElementById("btn-cancel-edit").classList.remove("hidden");
+    inQuestion.value = q.q;
+    optInputs.forEach(function(o,i){ o.value = q.options[i]||""; });
+    radios.forEach(function(r,i){ r.checked = (i===q.correct); });
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+  document.getElementById("btn-cancel-edit").addEventListener("click", resetForm);
+
+  document.getElementById("btn-save-q").addEventListener("click", async function(){
+    var qText = inQuestion.value.trim();
+    var opts = optInputs.map(function(o){ return o.value.trim(); });
+    var correctIdx = -1;
+    radios.forEach(function(r,i){ if(r.checked) correctIdx=i; });
+    var filledCount = opts.filter(function(o){return o;}).length;
+
+    if(!qText){ alert("กรุณากรอกคำถาม"); return; }
+    if(filledCount<2){ alert("กรุณากรอกตัวเลือกอย่างน้อย 2 ข้อ"); return; }
+    if(correctIdx===-1 || !opts[correctIdx]){ alert("กรุณาเลือกว่าข้อไหนคือคำตอบที่ถูกต้อง"); return; }
+
+    var qObj = { q:qText, options:opts, correct:correctIdx };
+    if(editIndex===null){
+      questions.push(qObj);
+    }else{
+      questions[editIndex] = qObj;
+    }
+    var ok = await saveQuestions(questions);
+    if(ok){
+      renderQList();
+      resetForm();
+      updateStartStatus();
+    }
+  });
+
+  async function deleteQuestion(idx){
+    if(!confirm("ลบคำถามข้อนี้ใช่ไหม? ต้นไม้ที่เกี่ยวข้องจะหายไปจากสนามด้วย")) return;
+    questions.splice(idx,1);
+    var ok = await saveQuestions(questions);
+    if(ok){ renderQList(); resetForm(); updateStartStatus(); }
+  }
+
+  document.getElementById("btn-reset-default").addEventListener("click", async function(){
+    if(!confirm("รีเซ็ตกลับเป็นชุดคำถามเริ่มต้นทั้งหมด? คำถามที่ตั้งเองจะถูกลบ")) return;
+    questions = DEFAULT_QUESTIONS.slice();
+    var ok = await saveQuestions(questions);
+    if(ok){ renderQList(); resetForm(); updateStartStatus(); }
+  });
+
+  function updateStartStatus(){
+    document.getElementById("q-status").textContent =
+      "พร้อมออกวิ่ง! ด่านนี้มี "+questions.length+" คำถาม / ต้นไม้ให้ตัด";
+  }
+
+  /* ============================================================
+     NAV WIRING & ADMIN PASSWORD
+  ============================================================ */
+  document.getElementById("btn-start").addEventListener("click", startGame);
+  
+  document.getElementById("btn-open-editor").addEventListener("click", function(){
+    var password = prompt("กรุณาใส่รหัสผ่านแอดมินเพื่อจัดการคำถาม :");
+    if(password === "5555"){ // คุณสามารถเปลี่ยนรหัสผ่านได้ที่นี่
+      renderQList(); 
+      resetForm(); 
+      showScreen("editor");
+    } else if (password !== null) {
+      alert("รหัสผ่านไม่ถูกต้อง!");
+    }
+  });
+
+  document.getElementById("btn-close-editor").addEventListener("click", function(){ showScreen("start"); });
+  
+  document.getElementById("btn-replay").addEventListener("click", function(){
+    level = buildLevel(questions);
+    resetPlayer();
+    playing = true;
+    showScreen("game");
+    updateHudProgress();
+    requestAnimationFrame(loop);
+  });
+  
+  document.getElementById("btn-win-editor").addEventListener("click", function(){
+    var password = prompt("กรุณาใส่รหัสผ่านแอดมินเพื่อจัดการคำถาม (รหัสเริ่มต้น: 1234):");
+    if(password === "1234"){ // คุณสามารถเปลี่ยนรหัสผ่านได้ที่นี่
+      renderQList(); 
+      resetForm(); 
+      showScreen("editor");
+    } else if (password !== null) {
+      alert("รหัสผ่านไม่ถูกต้อง!");
+    }
+  });
+
+  document.getElementById("btn-mute-start").addEventListener("click", function(){ ensureAudio(); setMuted(!muted); });
+  document.getElementById("btn-mute-game").addEventListener("click", function(){ ensureAudio(); setMuted(!muted); });
+
+  /* ============================================================
+     INIT
+  ============================================================ */
+  (async function init(){
+    questions = await loadQuestions();
+    updateStartStatus();
+  })();
+
+})();
+</script>
+</body>
+</html>
