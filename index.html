@@ -176,18 +176,18 @@
   }
   #dpad{
     pointer-events:all;
-    display:grid;grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px);gap:4px;
+    display:grid;grid-template-columns:repeat(3,60px);grid-template-rows:repeat(3,60px);gap:6px;
   }
   .dbtn{
-    background:rgba(251,246,233,.85);border:2px solid var(--wood-dark);border-radius:10px;
-    display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--ink);
+    background:rgba(251,246,233,.85);border:2px solid var(--wood-dark);border-radius:12px;
+    display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--ink);
     user-select:none;
   }
   #chopBtn{
     pointer-events:all;
-    width:78px;height:78px;border-radius:50%;
+    width:96px;height:96px;border-radius:50%;
     background:rgba(0,0,0,.35);border:3px solid rgba(255,255,255,.4);
-    color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:36px;display:flex;align-items:center;justify-content:center;
     transition:transform .1s ease, background .15s ease, border-color .15s ease;
   }
   #chopBtn.active{
@@ -282,7 +282,7 @@
 
     <div class="howto">
       <strong>วิธีเล่น:</strong> ใช้ลูกศร/WASD หรือปุ่มบนหน้าจอเพื่อเดิน เข้าใกล้ต้นไม้แล้วกด
-      <strong>E</strong> หรือปุ่ม ✂️ เพื่อตอบคำถาม — ตอบถูกจะได้ไม้กระดานไปปูสะพาน ตอบครบทุกต้นแล้วค่อยวิ่งข้ามไปยังธงเส้นชัย
+      <strong>E</strong> หรือปุ่ม 🪓 เพื่อตอบคำถาม — ตอบถูกจะได้ไม้กระดานไปปูสะพาน ตอบครบทุกต้นแล้วค่อยวิ่งข้ามไปยังธงเส้นชัย
     </div>
   </section>
 
@@ -305,7 +305,7 @@
           <button class="dbtn" id="btn-left">◀</button><div></div><button class="dbtn" id="btn-right">▶</button>
           <div></div><button class="dbtn" id="btn-down">▼</button><div></div>
         </div>
-        <button id="chopBtn">✂️</button>
+        <button id="chopBtn">🪓</button>
       </div>
 
       <!-- ============ QUIZ MODAL (อยู่ใน game-wrap เพื่อให้แสดงผลตอนเข้าโหมดเต็มจอด้วย) ============ -->
@@ -318,7 +318,7 @@
         </div>
       </div>
     </div>
-    <p class="keyboard-hint">ควบคุม: ลูกศร / WASD เดิน • กด E หรือแตะ ✂️ เพื่อตัดต้นไม้ที่อยู่ใกล้</p>
+    <p class="keyboard-hint">ควบคุม: ลูกศร / WASD เดิน • กด E หรือแตะ 🪓 เพื่อตัดต้นไม้ที่อยู่ใกล้</p>
   </section>
 
   <!-- ============ WIN SCREEN ============ -->
