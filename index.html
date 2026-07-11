@@ -580,12 +580,38 @@
       });
     }
 
+    // พุ่มไม้ประดับ — เพิ่มให้แผนที่ไม่โล่งเกินไป (แค่ตกแต่ง ไม่กระทบการเดิน/ชนต้นไม้)
+    var flowerColors = ["#F2C14E","#E85D4C","#FBF6E9"];
+    var bushesTop = [];
+    var bushCountTop = Math.max(12, n*3);
+    for(var bt=0; bt<bushCountTop; bt++){
+      bushesTop.push({
+        x: 18 + seededRand(bt*13+201)*(VIEW_W-36),
+        y: 18 + seededRand(bt*13+202)*(grassEndY-36),
+        s: 0.55 + seededRand(bt*13+203)*0.55,
+        flower: seededRand(bt*13+204) > 0.7,
+        flowerColor: flowerColors[Math.floor(seededRand(bt*13+205)*3)]
+      });
+    }
+    var bushesBottom = [];
+    var bushCountBottom = Math.max(8, Math.ceil(n*1.5));
+    for(var bb=0; bb<bushCountBottom; bb++){
+      bushesBottom.push({
+        x: 18 + seededRand(bb*17+301)*(VIEW_W-36),
+        y: finishTop+18 + seededRand(bb*17+302)*(finishH-90),
+        s: 0.55 + seededRand(bb*17+303)*0.55,
+        flower: seededRand(bb*17+304) > 0.7,
+        flowerColor: flowerColors[Math.floor(seededRand(bb*17+305)*3)]
+      });
+    }
+
     return {
       n:n, cols:cols, rows:rows,
       grassEndY:grassEndY, riverTop:riverTop, riverBottom:riverBottom,
       finishTop:finishTop, finishH:finishH, finishLineY:finishLineY, worldH:worldH,
       bridgeXMin:bridgeXMin, bridgeXMax:bridgeXMax, bridgeW:bridgeW,
-      trees:trees, decoTop:decoTop, decoBottom:decoBottom
+      trees:trees, decoTop:decoTop, decoBottom:decoBottom,
+      bushesTop:bushesTop, bushesBottom:bushesBottom
     };
   }
 
@@ -854,6 +880,7 @@
     gGrass.addColorStop(0,"#3C8763"); gGrass.addColorStop(1,"#2B6E4F");
     ctx.fillStyle = gGrass;
     ctx.fillRect(0,0,VIEW_W,level.grassEndY);
+    level.bushesTop.forEach(function(b){ drawBush(b); });
     ctx.fillStyle = "rgba(255,255,255,0.08)";
     level.decoTop.forEach(function(d){ ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,7); ctx.fill(); });
 
@@ -864,6 +891,7 @@
     gFin.addColorStop(0,"#3C8763"); gFin.addColorStop(1,"#256149");
     ctx.fillStyle = gFin;
     ctx.fillRect(0,level.finishTop,VIEW_W,level.finishH);
+    level.bushesBottom.forEach(function(b){ drawBush(b); });
     ctx.fillStyle = "rgba(255,255,255,0.08)";
     level.decoBottom.forEach(function(d){ ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,7); ctx.fill(); });
 
@@ -877,6 +905,29 @@
     });
 
     drawPlayer();
+    ctx.restore();
+  }
+
+  function drawBush(b){
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    ctx.scale(b.s, b.s);
+    ctx.fillStyle = "rgba(0,0,0,0.14)";
+    ctx.beginPath(); ctx.ellipse(0,11,19,6,0,0,7); ctx.fill();
+    ctx.fillStyle = "#245C3E";
+    ctx.beginPath(); ctx.arc(-11,2,13,0,7); ctx.fill();
+    ctx.beginPath(); ctx.arc(11,2,13,0,7); ctx.fill();
+    ctx.beginPath(); ctx.arc(0,-6,15,0,7); ctx.fill();
+    ctx.fillStyle = "#3E9662";
+    ctx.beginPath(); ctx.arc(-9,-3,9,0,7); ctx.fill();
+    ctx.beginPath(); ctx.arc(7,-6,8,0,7); ctx.fill();
+    ctx.beginPath(); ctx.arc(0,2,7,0,7); ctx.fill();
+    if(b.flower){
+      ctx.fillStyle = b.flowerColor;
+      ctx.beginPath(); ctx.arc(-4,-8,2.3,0,7); ctx.fill();
+      ctx.beginPath(); ctx.arc(6,0,2.3,0,7); ctx.fill();
+      ctx.beginPath(); ctx.arc(-2,4,2.3,0,7); ctx.fill();
+    }
     ctx.restore();
   }
 
